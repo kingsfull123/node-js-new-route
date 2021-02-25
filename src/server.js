@@ -9,7 +9,9 @@ const bodyParser = require('body-parser')
 const session = require('express-session')
 const flash = require('express-flash')
 const mongoose = require('mongoose')
-mongoose.connect('mongodb+srv://senyang:senyang123@cluster0.aapka.mongodb.net/user_admin?retryWrites=true&w=majority', {useNewUrlParser: true, useUnifiedTopology: true});
+mongoose.connect(`mongodb+srv://senyang:${process.env.DB_PASSWORD}@cluster0.aapka.mongodb.net/${process.env.DB_USERNAME}?retryWrites=true&w=majority`, {useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true});
+const User = require('../models/user')
+const Article = require('../models/article')
 const passport = require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const bcrypt = require('bcrypt')
@@ -42,7 +44,7 @@ app.get('/register', (req, res) => {
 })
 
 app.post('/register', (req, res) => {
-
+    
 })
 
 app.get('/welcome', (req, res) => {
