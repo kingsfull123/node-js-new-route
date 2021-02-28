@@ -19,10 +19,10 @@ const userSchema = new mongoose.Schema({
         default: 'user',
         enum: ['admin', 'user']
     },
-    article: {
+    article: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Article'
-    }
+    }]
 })
 
 module.exports = mongoose.model('User', userSchema)
