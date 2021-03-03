@@ -19,6 +19,10 @@ const userSchema = new mongoose.Schema({
         default: 'user',
         enum: ['admin', 'user']
     },
+    comment: [{
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Comment'
+    }],
     article: [{
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Article'

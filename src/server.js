@@ -12,6 +12,7 @@ const mongoose = require('mongoose')
 mongoose.connect(`mongodb+srv://senyang:${process.env.DB_PASSWORD}@cluster0.aapka.mongodb.net/${process.env.DB_USERNAME}?retryWrites=true&w=majority`, {useCreateIndex: true, useNewUrlParser: true, useUnifiedTopology: true});
 const User = require('../models/user')
 const Article = require('../models/article')
+const Comment = require('../models/commet')
 const passport = require('passport')
 const initialize = require('../passport-config')
 initialize(passport)
@@ -28,27 +29,30 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
-app.get('/welcomeback', (req, res) => {
-    res.render('welcome', {title: 'welcome home'})
+app.get('/welcomeback', checkRole , (req, res) => {
+    res.render('welcome', {title: 'welcome home', user: req.user.name, article: req.user.article})
 })
 
 app.get('/new', (req, res) => {
-    res.render('new', {title: 'New post'})
+    res.render('new', {title: 'New post', user: req.user.name})
 })
 
 app.post('/new', async (req, res) => {
     const article = new Article({
         text: req.body.text,
-        user: req.user._id
+        user: req.user.id
     })
-    await article.save(function(err) {
-        if(err) {res.send(err)}
+    await article.save()
+    const user = await User.findById(req.user.id)
+    user.article.push(article)
+    await user.save(function(err) {
+        if(err) {console.log(err)}
         res.redirect('/welcomeback')
     })
 })
 
-app.get('/home', (req, res) => {
-    res.render('home', {title: 'Home Page'})
+app.get('/userview', (req, res) => {
+    res.render('userview', {title: 'user view Page', article: req.user.article})
 })
 
 app.get('/login', (req, res) => {
@@ -65,6 +69,7 @@ app.get('/register', (req, res) => {
     res.render('register', {title: 'Register'})
 })
 
+// Register function when admin and user share userSchema
 app.post('/register', async (req, res) => {
     const role = req.body.role;
     const hashedPassword = await bcrypt.hash(req.body.password, 10);
@@ -99,6 +104,41 @@ app.post('/register', async (req, res) => {
         res.send(e)
     }
 })
+
+function checkRole (req, res, next) {
+    if(req.user.role === 'admin') {
+        next()
+    } else {
+        res.redirect('/userview')
+    }
+}
+
+// register function have user and admin seperated, doesn't work as admin account can not pass passport authorization
+
+// app.post('/register', async (req, res) => {
+//     const hashedPassword = await bcrypt.hash(req.body.password, 10);
+//     if(req.body.email === process.env.ADMIN_EMAIL && req.body.password === process.env.ADMIN_PASSWORD) {
+//         const admin = new Admin({
+//             name: req.body.name,
+//             email: req.body.email,
+//             password: hashedPassword,
+//             role: 'admin'
+//         })
+//         await admin.save()
+//         res.redirect('/login')
+//     } else if(req.body.email === process.env.ADMIN_EMAIL && req.body.password !== process.env.ADMIN_PASSWORD) {
+//         res.send('Not Authorized')
+//     } else {
+//         const user = new User({
+//             name: req.body.name,
+//             email: req.body.email,
+//             password: hashedPassword,
+//             role: 'user'
+//         })
+//         await user.save()
+//         res.redirect('/login')
+//     }
+// })
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`)
