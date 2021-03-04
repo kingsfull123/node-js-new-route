@@ -30,7 +30,17 @@ app.use(passport.initialize())
 app.use(passport.session())
 
 app.get('/welcomeback', checkRole , (req, res) => {
-    res.render('welcome', {title: 'welcome home', user: req.user.name, article: req.user.article})
+
+    User.findById(req.user._id)
+        .populate('article')
+        .exec(function(err, result) {
+            if(err) {console.log(err)}
+            res.render('welcome', {title: 'Welcome home, admin', user: result.name, article: result.article})
+        })
+
+
+        //original code
+    // res.render('welcome', {title: 'welcome home', user: req.user.name, article: req.user.article})
 })
 
 app.get('/new', (req, res) => {
@@ -52,7 +62,13 @@ app.post('/new', async (req, res) => {
 })
 
 app.get('/userview', (req, res) => {
-    res.render('userview', {title: 'user view Page', article: req.user.article})
+    User.findById(req.user._id)
+        .populate('article')
+        .exec(function(err, result) {
+            if(err) {console.log(err)}
+            res.render('userview', {title: 'User view page', article: result.article})
+        })
+    // res.render('userview', {title: 'user view Page', article: req.user.article})
 })
 
 app.get('/login', (req, res) => {

@@ -1,11 +1,11 @@
 <h1><%= title %> <%= user%></h1>
 
 <h3>List of articles</h3>
-<% if(article.length == 0){ %>
+<% if(article.length <= 0){ %>
     <p>There is no article saved</p>
 <% } else { %>
-    <% for(var item in article) { %>
-        <%= item %>
+    <% for(var i=0; i<article.length; i++) { %>
+        <li><%= article[i].text %></li>
     <% } %>    
 <% } %>        
 
