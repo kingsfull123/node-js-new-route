@@ -29,6 +29,11 @@ app.use(session({
 app.use(passport.initialize())
 app.use(passport.session())
 
+app.get('/', async (req, res) => {
+    const articles = await Article.find()
+    res.render('home', {articles: articles})
+})
+
 app.get('/welcomeback', checkRole , (req, res) => {
 
     User.findById(req.user._id)
@@ -38,9 +43,6 @@ app.get('/welcomeback', checkRole , (req, res) => {
             res.render('welcome', {title: 'Welcome home, admin', user: result.name, article: result.article})
         })
 
-
-        //original code
-    // res.render('welcome', {title: 'welcome home', user: req.user.name, article: req.user.article})
 })
 
 app.get('/new', (req, res) => {

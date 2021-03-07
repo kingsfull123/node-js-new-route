@@ -1,0 +1,16 @@
+<h1>Home Page</h1>
+
+<h3>The list of posts</h3>
+
+
+    <% if(articles.length <= 0) { %>
+        <p>There are no posts here</p>
+    <% } else { %>
+        
+        <ul>
+        <% for(var i=0; i<articles.length; i++) { %>
+            <li><%= articles[i].text %></li> 
+        <% } %>    
+        </ul>
+    <% } %>    
+  
