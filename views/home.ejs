@@ -9,7 +9,8 @@
         
         <ul>
         <% for(var i=0; i<articles.length; i++) { %>
-            <li><%= articles[i].text %></li> 
+            <li><%= articles[i].text %></li> <button><a href="/article/<%= articles[i]._id %>">Read more</a></button>
+               
         <% } %>    
         </ul>
     <% } %>    

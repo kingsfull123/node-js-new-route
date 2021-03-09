@@ -31,19 +31,26 @@ app.use(passport.session())
 
 app.get('/', async (req, res) => {
     const articles = await Article.find()
+    const comments = await Comment.find()
     res.render('home', {articles: articles})
 })
 
-app.get('/welcomeback', checkRole , (req, res) => {
+app.get('/article/:id', async (req, res) => {
+    const id = req.params.id;
+    const article = await Article.findById(id)
+    res.render('post', {article: article.text, id: id })
+})
+
+app.get('/admin', checkRole , async (req, res) => {
 
     User.findById(req.user._id)
         .populate('article')
         .exec(function(err, result) {
             if(err) {console.log(err)}
-            res.render('welcome', {title: 'Welcome home, admin', user: result.name, article: result.article})
+            res.render('admin', {title: 'Welcome home, admin', user: result.name, articles: result.article})
         })
 
-})
+})  
 
 app.get('/new', (req, res) => {
     res.render('new', {title: 'New post', user: req.user.name})
@@ -59,26 +66,17 @@ app.post('/new', async (req, res) => {
     user.article.push(article)
     await user.save(function(err) {
         if(err) {console.log(err)}
-        res.redirect('/welcomeback')
+        res.redirect('/admin')
     })
 })
 
-app.get('/userview', (req, res) => {
-    User.findById(req.user._id)
-        .populate('article')
-        .exec(function(err, result) {
-            if(err) {console.log(err)}
-            res.render('userview', {title: 'User view page', article: result.article})
-        })
-    // res.render('userview', {title: 'user view Page', article: req.user.article})
-})
 
 app.get('/login', (req, res) => {
     res.render('login', {title: 'Login'})
 })
 
 app.post('/login', passport.authenticate('local', {
-    successRedirect: '/welcomeback',
+    successRedirect: '/admin',
     failureRedirect: '/login',
     failureFlash: true
 }))
@@ -127,36 +125,9 @@ function checkRole (req, res, next) {
     if(req.user.role === 'admin') {
         next()
     } else {
-        res.redirect('/userview')
+        res.redirect('/')
     }
 }
-
-// register function have user and admin seperated, doesn't work as admin account can not pass passport authorization
-
-// app.post('/register', async (req, res) => {
-//     const hashedPassword = await bcrypt.hash(req.body.password, 10);
-//     if(req.body.email === process.env.ADMIN_EMAIL && req.body.password === process.env.ADMIN_PASSWORD) {
-//         const admin = new Admin({
-//             name: req.body.name,
-//             email: req.body.email,
-//             password: hashedPassword,
-//             role: 'admin'
-//         })
-//         await admin.save()
-//         res.redirect('/login')
-//     } else if(req.body.email === process.env.ADMIN_EMAIL && req.body.password !== process.env.ADMIN_PASSWORD) {
-//         res.send('Not Authorized')
-//     } else {
-//         const user = new User({
-//             name: req.body.name,
-//             email: req.body.email,
-//             password: hashedPassword,
-//             role: 'user'
-//         })
-//         await user.save()
-//         res.redirect('/login')
-//     }
-// })
 
 app.listen(port, () => {
     console.log(`Server is running on port ${port}`)

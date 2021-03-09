@@ -1,0 +1,16 @@
+<h1><%= title %> <%= user%></h1>
+
+<h3>List of articles</h3>
+<% if(articles.length <= 0) { %>
+    <p>There are no posts here</p>
+<% } else { %>
+    
+    <ul>
+    <% for(var i=0; i<articles.length; i++) { %>
+        <li><%= articles[i].text %></li> 
+           
+    <% } %>    
+    </ul>
+<% } %>         
+
+<a href="/new">New</a>
